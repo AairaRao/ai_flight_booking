@@ -4,12 +4,13 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from bson.objectid import ObjectId
 from datetime import datetime
 import re
+import os
 
 app = Flask(__name__)
-app.secret_key = "skyvoyage_secret_key"
+app.secret_key = os.environ.get("SECRET_KEY", "skyvoyage_secret_key")
 
-# Local MongoDB Connection
-app.config["MONGO_URI"] = "mongodb://localhost:27017/flight_booking"
+# MongoDB Connection - Uses environment variable for production, localhost for development
+app.config["MONGO_URI"] = os.environ.get("MONGO_URI", "mongodb://localhost:27017/flight_booking")
 mongo = PyMongo(app)
 
 # ============================================
