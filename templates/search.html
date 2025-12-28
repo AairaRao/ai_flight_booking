@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="max-width: 500px; margin: auto; padding: 20px; border: 1px solid #ccc; border-radius: 10px;">
+    <h2>Find Your Flight</h2>
+    <form action="/results" method="GET">
+        <label>From:</label><br>
+        <input type="text" name="from_city" placeholder="e.g. New York" required style="width: 100%; margin-bottom: 10px;"><br>
+        
+        <label>To:</label><br>
+        <input type="text" name="to_city" placeholder="e.g. London" required style="width: 100%; margin-bottom: 10px;"><br>
+        
+        <label>Passengers:</label><br>
+        <select name="adults">
+            <option value="1">1 Adult</option>
+            <option value="2">2 Adults</option>
+        </select>
+        <select name="children">
+            <option value="0">0 Children</option>
+            <option value="1">1 Child</option>
+        </select><br><br>
+
+        <label>Class:</label><br>
+        <select name="class" style="width: 100%; margin-bottom: 20px;">
+            <option value="Economy">Economy</option>
+            <option value="Business">Business (2.5x Price)</option>
+        </select><br>
+
+        <button type="submit" style="width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; cursor: pointer;">Search Flights</button>
+    </form>
+</div>
+{% endblock %}

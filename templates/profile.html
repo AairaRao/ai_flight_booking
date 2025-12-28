@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - SkyVoyage{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div class="welcome-message">
+            <i class="fas fa-user-circle" style="font-size: 48px; color: #1A73E8; margin-bottom: 15px; display: block;"></i>
+            Welcome, {{ name }}!
+        </div>
+        <p style="text-align: center; color: var(--text-secondary); margin-bottom: 30px;">Manage your bookings and explore new destinations</p>
+        <div class="profile-links">
+            <a href="{{ url_for('index') }}">
+                <i class="fas fa-search"></i> Search Flights
+            </a>
+            <a href="{{ url_for('my_bookings') }}">
+                <i class="fas fa-suitcase"></i> My Bookings
+            </a>
+            <a href="{{ url_for('settings') }}">
+                <i class="fas fa-cog"></i> Settings
+            </a>
+            <a href="{{ url_for('logout') }}" class="logout">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

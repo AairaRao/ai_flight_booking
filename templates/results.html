@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Flight Results - SkyVoyage{% endblock %}
+
+{% block content %}
+<div style="background: #f4f7f6; min-height: 100vh; padding: 40px 20px;">
+    <div style="max-width: 1200px; margin: 0 auto; display: flex; gap: 30px;">
+        
+        <div style="width: 300px; flex-shrink: 0;">
+            <div style="background: white; border-radius: 16px; padding: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); position: sticky; top: 20px;">
+                <form action="{{ url_for('results') }}" method="GET">
+                    <input type="hidden" name="from_city" value="{{ request.args.get('from_city', '') }}">
+                    <input type="hidden" name="to_city" value="{{ request.args.get('to_city', '') }}">
+
+                    <h3 style="color: #1a2b4a; margin-top: 0; font-size: 20px;"><i class="fas fa-filter"></i> Filters</h3>
+                    <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
+                    <p style="font-weight: 700; color: #1a2b4a; margin-bottom: 15px;"><i class="fas fa-plane"></i> Airlines</p>
+                    <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px;">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" name="airlines" value="SkyVoyage Air" style="width: 18px; height: 18px;"> SkyVoyage Air
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" name="airlines" value="Emirates" style="width: 18px; height: 18px;"> Emirates
+                        </label>
+                    </div>
+
+                    <p style="font-weight: 700; color: #1a2b4a; margin-bottom: 15px;"><i class="fas fa-tag"></i> Max Price</p>
+                    <input type="range" name="price_range" min="0" max="150000" step="500" value="{{ request.args.get('price_range', '150000') }}" 
+                           style="width: 100%; cursor: pointer; accent-color: #1A73E8;" 
+                           oninput="this.nextElementSibling.value = 'Rs. ' + this.value">
+                    <output style="display: block; text-align: center; margin-top: 10px; font-weight: 700; color: #1A73E8;">
+                        Rs. {{ request.args.get('price_range', '150000') }}
+                    </output>
+
+                    <button type="submit" style="width: 100%; background: #1A73E8; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 700; margin-top: 30px; cursor: pointer; transition: 0.3s;">
+                        Apply Filters
+                    </button>
+                    
+                    <a href="{{ url_for('results') }}" style="display: block; text-align: center; margin-top: 15px; color: #666; text-decoration: none; font-size: 14px;">
+                        Clear All
+                    </a>
+                </form>
+            </div>
+        </div>
+
+        <div style="flex-grow: 1;">
+            <div style="margin-bottom: 30px; display: flex; justify-content: space-between; align-items: flex-end;">
+                <div>
+                    <h2 style="color: #1a2b4a; margin: 0; font-size: 28px;">Available Flights</h2>
+                    <p style="color: #666; margin: 5px 0 0 0;">Showing flights from the database</p>
+                </div>
+            </div>
+
+            {% if flights %}
+                {% for flight in flights %}
+                <div style="background: white; border-radius: 16px; padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); display: flex; align-items: center;">
+                    
+                    <div style="flex: 1; display: flex; align-items: center; gap: 15px;">
+                        <div style="background: #1A73E8; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 20px;">
+                            SV
+                        </div>
+                        <div>
+                            <div style="font-weight: 700; font-size: 17px; color: #1a2b4a;">{{ flight.airline }}</div>
+                            <div style="font-size: 13px; color: #999;">{{ flight.flight_id }}</div>
+                        </div>
+                    </div>
+
+                    <div style="flex: 3; display: flex; align-items: center; justify-content: space-evenly; padding: 0 30px;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 26px; font-weight: 800; color: #1a2b4a;">{{ flight.time }}</div>
+                            <div style="font-size: 14px; color: #666;">{{ flight.from_city }}</div>
+                        </div>
+
+                        <div style="text-align: center; position: relative; width: 150px;">
+                            <div style="font-size: 12px; color: #888; margin-bottom: 8px;">Direct</div>
+                            <div style="height: 2px; background: #e0e0e0; position: relative; width: 100%;">
+                                <div style="position: absolute; right: 0; top: -7px; color: #1A73E8;"><i class="fas fa-plane"></i></div>
+                            </div>
+                        </div>
+
+                        <div style="text-align: center;">
+                            <div style="font-size: 26px; font-weight: 800; color: #1a2b4a;">Arrival</div>
+                            <div style="font-size: 14px; color: #666;">{{ flight.to_city }}</div>
+                        </div>
+                    </div>
+
+                    <div style="flex: 1.2; text-align: right; border-left: 2px solid #f0f0f0; padding-left: 30px;">
+                        <div style="font-size: 32px; font-weight: 900; color: #1A73E8;">
+                            <span style="font-size: 16px;">Rs.</span> {{ "{:,}".format(flight.base_price) }}
+                        </div>
+                        <a href="{{ url_for('confirm_booking', flight_id=flight._id) }}" 
+                           style="display: block; background: #1A73E8; color: white; text-align: center; text-decoration: none; padding: 12px 0; border-radius: 10px; font-weight: 700; margin-top: 10px;">
+                            Select
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div style="background: white; padding: 60px; border-radius: 20px; text-align: center;">
+                    <h3 style="color: #ccc;">No Flights Found in Database</h3>
+                </div>
+            {% endif %}
+            </div>
+    </div>
+</div>
+{% endblock %}

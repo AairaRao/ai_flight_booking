@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .bookings-wrapper {
+        max-width: 1100px;
+        margin: 50px auto;
+        padding: 0 20px;
+    }
+    .bookings-title {
+        margin-bottom: 30px;
+        font-size: 28px;
+        color: var(--text-primary);
+    }
+    .booking-table-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+    [data-theme="dark"] .booking-table-card { background: #1A2B4A; color: white; }
+    
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #1A73E8; color: white; padding: 18px; text-align: left; font-size: 14px; }
+    td { padding: 18px; border-bottom: 1px solid #eee; }
+    [data-theme="dark"] td { border-bottom: 1px solid #2d3d5a; }
+    
+    .status-pill {
+        background: #e3f2fd;
+        color: #1A73E8;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+    
+    .empty-state {
+        padding: 60px 20px;
+        text-align: center;
+    }
+    .empty-state p {
+        color: var(--text-secondary);
+        margin-bottom: 15px;
+    }
+    .empty-state a {
+        color: #1A73E8;
+        font-weight: 700;
+        text-decoration: none;
+    }
+    .empty-state a:hover {
+        text-decoration: underline;
+    }
+    
+    /* Mobile Card View */
+    .booking-card-mobile {
+        display: none;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .bookings-wrapper {
+            margin: 30px auto;
+            padding: 0 15px;
+        }
+        .bookings-title {
+            font-size: 24px;
+        }
+        
+        /* Hide table, show cards */
+        table {
+            display: none;
+        }
+        .booking-card-mobile {
+            display: block;
+        }
+        .booking-mobile-item {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+        .booking-mobile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color, #eee);
+        }
+        .booking-mobile-airline {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .booking-mobile-flight-id {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        .booking-mobile-route {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .booking-mobile-city {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .booking-mobile-arrow {
+            color: #1A73E8;
+        }
+        .booking-mobile-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .booking-mobile-date {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        .booking-mobile-price {
+            font-weight: 700;
+            color: #1A73E8;
+            font-size: 18px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .bookings-wrapper {
+            margin: 20px auto;
+            padding: 0 10px;
+        }
+        .bookings-title {
+            font-size: 20px;
+        }
+        .booking-mobile-item {
+            padding: 15px;
+        }
+        .empty-state {
+            padding: 40px 15px;
+        }
+    }
+</style>
+
+<div class="bookings-wrapper">
+    <h2 class="bookings-title">My Travel History</h2>
+    
+    <div class="booking-table-card">
+        {% if bookings %}
+        <!-- Desktop Table View -->
+        <table>
+            <thead>
+                <tr>
+                    <th>Flight Details</th>
+                    <th>Route</th>
+                    <th>Date & Time</th>
+                    <th>Price Paid</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in bookings %}
+                <tr>
+                    <td>
+                        <div style="font-weight: 700;">{{ booking.flight_info.airline }}</div>
+                        <div style="font-size: 12px; opacity: 0.6;">{{ booking.flight_info.flight_id }}</div>
+                    </td>
+                    <td>{{ booking.flight_info.from_city }} ➔ {{ booking.flight_info.to_city }}</td>
+                    <td>{{ booking.flight_info.date }}<br><small>{{ booking.flight_info.time }}</small></td>
+                    <td style="font-weight: 700; color: #1A73E8;">Rs. {{ "{:,}".format(booking.final_price) }}</td>
+                    <td><span class="status-pill">{{ booking.status }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <!-- Mobile Card View -->
+        <div class="booking-card-mobile">
+            {% for booking in bookings %}
+            <div class="booking-mobile-item">
+                <div class="booking-mobile-header">
+                    <div>
+                        <div class="booking-mobile-airline">{{ booking.flight_info.airline }}</div>
+                        <div class="booking-mobile-flight-id">{{ booking.flight_info.flight_id }}</div>
+                    </div>
+                    <span class="status-pill">{{ booking.status }}</span>
+                </div>
+                <div class="booking-mobile-route">
+                    <span class="booking-mobile-city">{{ booking.flight_info.from_city }}</span>
+                    <i class="fas fa-plane booking-mobile-arrow"></i>
+                    <span class="booking-mobile-city">{{ booking.flight_info.to_city }}</span>
+                </div>
+                <div class="booking-mobile-details">
+                    <div class="booking-mobile-date">
+                        <i class="far fa-calendar-alt"></i> {{ booking.flight_info.date }} at {{ booking.flight_info.time }}
+                    </div>
+                    <div class="booking-mobile-price">Rs. {{ "{:,}".format(booking.final_price) }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-plane-departure" style="font-size: 48px; color: #1A73E8; margin-bottom: 20px;"></i>
+            <p>No bookings found yet.</p>
+            <a href="{{ url_for('index') }}">Book your first flight →</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

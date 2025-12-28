@@ -1,0 +1,1035 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .confirm-container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+    
+    /* Offers Banner */
+    .offers-banner {
+        background: linear-gradient(135deg, #1A73E8 0%, #4A9DFF 100%);
+        border-radius: 12px;
+        padding: 16px 20px;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        color: white;
+        box-shadow: 0 4px 15px rgba(26, 115, 232, 0.3);
+    }
+    
+    .offers-banner i {
+        font-size: 28px;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+    
+    .offers-banner-content h4 {
+        margin: 0 0 4px;
+        font-size: 16px;
+        font-weight: 700;
+    }
+    
+    .offers-banner-content p {
+        margin: 0;
+        font-size: 13px;
+        opacity: 0.95;
+    }
+    
+    .booking-card {
+        background: white;
+        border-radius: 15px;
+        padding: 40px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: background 0.3s, color 0.3s;
+        color: #1a2b4a; 
+    }
+    
+    /* Dark Mode Support */
+    [data-theme="dark"] .booking-card {
+        background: #1A2B4A;
+        color: white;
+    }
+    [data-theme="dark"] .detail-row {
+        background: rgba(255,255,255,0.05) !important;
+        color: white; 
+    }
+    
+    .detail-row {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 12px;
+        margin: 25px 0;
+        text-align: left;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .btn-confirm {
+        background: #1A73E8;
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 10px;
+        font-weight: 700;
+        width: 100%;
+        font-size: 18px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+    .btn-confirm:hover {
+        background: #1557b0;
+        box-shadow: 0 5px 15px rgba(26, 115, 232, 0.4);
+    }
+
+    .btn-cancel {
+        display: block;
+        text-align: center;
+        margin-top: 15px;
+        padding: 12px;
+        color: #1A73E8;
+        text-decoration: none;
+        font-weight: 600;
+        border: 2px solid transparent; 
+        border-radius: 10px;
+        transition: 0.3s;
+    }
+    .btn-cancel:hover {
+        border-color: #1A73E8;
+        background: rgba(26, 115, 232, 0.05);
+        color: #1557b0;
+    }
+
+    .detail-label {
+        font-size: 12px; 
+        text-transform: uppercase; 
+        opacity: 0.7;
+        margin-bottom: 4px;
+        display: block;
+    }
+    
+    /* Promo Code Section */
+    .promo-section {
+        background: linear-gradient(135deg, #E8F4FD 0%, #F0F7FF 100%);
+        border-radius: 12px;
+        padding: 20px;
+        margin: 25px 0;
+        border: 2px dashed #1A73E8;
+    }
+    
+    [data-theme="dark"] .promo-section {
+        background: linear-gradient(135deg, #1A2B4A 0%, #243B5A 100%);
+        border-color: #4A9DFF;
+    }
+    
+    .promo-section h4 {
+        margin: 0 0 12px;
+        font-size: 16px;
+        color: #1A73E8;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    [data-theme="dark"] .promo-section h4 {
+        color: #4A9DFF;
+    }
+    
+    .promo-input-row {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .promo-input {
+        flex: 1;
+        padding: 12px 16px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 14px;
+        text-transform: uppercase;
+        background: white;
+        color: #333;
+    }
+    
+    [data-theme="dark"] .promo-input {
+        background: #1A2B4A;
+        border-color: #3A4A6A;
+        color: white;
+    }
+    
+    .promo-input:focus {
+        outline: none;
+        border-color: #1A73E8;
+    }
+    
+    .btn-apply {
+        padding: 12px 24px;
+        background: #1A73E8;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+    
+    .btn-apply:hover {
+        background: #1557b0;
+    }
+    
+    /* Discount Tags */
+    .discount-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+    }
+    
+    .discount-tag {
+        padding: 6px 12px;
+        background: rgba(26, 115, 232, 0.1);
+        border-radius: 20px;
+        font-size: 12px;
+        color: #1A73E8;
+        cursor: pointer;
+        transition: 0.2s;
+        border: none;
+    }
+    
+    .discount-tag:hover {
+        background: #1A73E8;
+        color: white;
+    }
+    
+    [data-theme="dark"] .discount-tag {
+        background: rgba(74, 157, 255, 0.15);
+        color: #4A9DFF;
+    }
+    
+    /* Price Breakdown */
+    .price-breakdown {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 25px 0;
+    }
+    
+    [data-theme="dark"] .price-breakdown {
+        background: rgba(255,255,255,0.05);
+    }
+    
+    .price-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    [data-theme="dark"] .price-row {
+        border-bottom-color: rgba(255,255,255,0.1);
+    }
+    
+    .price-row:last-child {
+        border-bottom: none;
+    }
+    
+    .price-row.original {
+        opacity: 0.7;
+    }
+    
+    .price-row.discount {
+        color: #1A73E8;
+    }
+    
+    [data-theme="dark"] .price-row.discount {
+        color: #81C784;
+    }
+    
+    .price-row.total {
+        font-size: 20px;
+        font-weight: 700;
+        padding-top: 15px;
+        margin-top: 5px;
+        border-top: 2px solid #1A73E8;
+        border-bottom: none;
+    }
+    
+    .price-row.total .price-value {
+        color: #1A73E8;
+        font-size: 28px;
+    }
+    
+    .strike {
+        text-decoration: line-through;
+        opacity: 0.6;
+    }
+    
+    .savings-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        background: linear-gradient(135deg, #1A73E8, #4A9DFF);
+        color: white;
+        border-radius: 15px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-left: 10px;
+    }
+    
+    /* Passengers Grid */
+    .passengers-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        margin: 20px 0;
+    }
+    
+    @media (max-width: 768px) {
+        .passengers-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .passenger-type-box {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        border: 2px solid transparent;
+        transition: all 0.3s;
+        position: relative;
+    }
+    
+    [data-theme="dark"] .passenger-type-box {
+        background: rgba(255,255,255,0.05);
+    }
+    
+    .passenger-type-box:hover {
+        border-color: #1A73E8;
+    }
+    
+    .passenger-type-box.infant-box {
+        background: linear-gradient(135deg, #E8F5E9 0%, #f8f9fa 100%);
+    }
+    
+    [data-theme="dark"] .passenger-type-box.infant-box {
+        background: linear-gradient(135deg, rgba(46, 125, 50, 0.2) 0%, rgba(255,255,255,0.05) 100%);
+    }
+    
+    .infant-discount-badge {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: linear-gradient(135deg, #1A73E8, #4A9DFF);
+        color: white;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+    
+    .passenger-type-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+    
+    .passenger-type-header i {
+        font-size: 24px;
+        color: #1A73E8;
+    }
+    
+    [data-theme="dark"] .passenger-type-header i {
+        color: #4A9DFF;
+    }
+    
+    .passenger-type-header h5 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 700;
+        color: #0B1F3B;
+        text-align: left;
+    }
+    
+    [data-theme="dark"] .passenger-type-header h5 {
+        color: #FFFFFF;
+    }
+    
+    .passenger-type-header span {
+        font-size: 12px;
+        color: #666;
+        display: block;
+        text-align: left;
+    }
+    
+    [data-theme="dark"] .passenger-type-header span {
+        color: #B0C4DE;
+    }
+    
+    .passenger-counter-box {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+    }
+    
+    .counter-btn-box {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: 2px solid #1A73E8;
+        background: white;
+        color: #1A73E8;
+        font-size: 20px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+    
+    [data-theme="dark"] .counter-btn-box {
+        background: #1A2B4A;
+        border-color: #4A9DFF;
+        color: #4A9DFF;
+    }
+    
+    .counter-btn-box:hover:not(:disabled) {
+        background: #1A73E8;
+        color: white;
+    }
+    
+    .counter-btn-box:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+    
+    .counter-value-box {
+        font-size: 24px;
+        font-weight: 700;
+        min-width: 30px;
+        text-align: center;
+        color: #0B1F3B;
+    }
+    
+    [data-theme="dark"] .counter-value-box {
+        color: #FFFFFF;
+    }
+    
+    /* Class Selection Section */
+    .class-selection-section {
+        margin: 25px 0;
+    }
+    
+    .class-selection-section label {
+        display: block;
+        margin-bottom: 12px;
+        font-weight: 600;
+        font-size: 16px;
+        color: inherit;
+    }
+    
+    .class-buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+    
+    .class-btn {
+        padding: 20px;
+        border: 2px solid #E0E0E0;
+        border-radius: 12px;
+        background: white;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.3s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    [data-theme="dark"] .class-btn {
+        background: rgba(255,255,255,0.05);
+        border-color: #3A4A6A;
+    }
+    
+    .class-btn:hover {
+        border-color: #1A73E8;
+    }
+    
+    .class-btn.selected {
+        border-color: #1A73E8;
+        background: linear-gradient(135deg, #E7F1FF 0%, #F0F7FF 100%);
+    }
+    
+    [data-theme="dark"] .class-btn.selected {
+        background: rgba(26, 115, 232, 0.2);
+        border-color: #4A9DFF;
+    }
+    
+    .class-btn i {
+        font-size: 28px;
+        color: #666;
+    }
+    
+    .class-btn.selected i {
+        color: #1A73E8;
+    }
+    
+    [data-theme="dark"] .class-btn.selected i {
+        color: #4A9DFF;
+    }
+    
+    .class-btn span {
+        font-size: 16px;
+        font-weight: 700;
+        color: #0B1F3B;
+    }
+    
+    [data-theme="dark"] .class-btn span {
+        color: #FFFFFF;
+    }
+    
+    .class-btn small {
+        font-size: 12px;
+        color: #666;
+    }
+    
+    [data-theme="dark"] .class-btn small {
+        color: #B0C4DE;
+    }
+    
+    .class-btn.selected span {
+        color: #1A73E8;
+    }
+    
+    [data-theme="dark"] .class-btn.selected span {
+        color: #4A9DFF;
+    }
+    
+    .promo-message {
+        margin-top: 10px;
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-size: 14px;
+        display: none;
+    }
+    
+    .promo-message.success {
+        background: #E7F1FF;
+        color: #1A73E8;
+        display: block;
+    }
+    
+    .promo-message.error {
+        background: #FFEBEE;
+        color: #C62828;
+        display: block;
+    }
+    
+    [data-theme="dark"] .promo-message.success {
+        background: rgba(46, 125, 50, 0.2);
+        color: #81C784;
+    }
+    
+    [data-theme="dark"] .promo-message.error {
+        background: rgba(198, 40, 40, 0.2);
+        color: #4A9DFF;
+    }
+    
+    /* Responsive Styles */
+    @media (max-width: 1024px) {
+        .confirm-container {
+            padding: 30px 20px;
+        }
+        .confirm-grid {
+            grid-template-columns: 1fr;
+            gap: 25px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .confirm-container {
+            padding: 20px 15px;
+        }
+        .confirm-title {
+            font-size: 24px;
+        }
+        .flight-detail-card,
+        .price-summary-card {
+            padding: 20px 15px;
+            border-radius: 14px;
+        }
+        .flight-info {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        .flight-route-display {
+            padding: 15px 0;
+        }
+        .route-city {
+            font-size: 18px;
+        }
+        .route-code {
+            font-size: 24px;
+        }
+        .passengers-grid {
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        .passenger-type-box {
+            padding: 15px;
+        }
+        .class-selection {
+            flex-direction: column;
+            gap: 10px;
+        }
+        .class-option {
+            padding: 12px 20px;
+        }
+        .offers-banner {
+            flex-direction: column;
+            padding: 15px;
+            text-align: center;
+            gap: 10px;
+        }
+        .offers-banner i {
+            font-size: 24px;
+        }
+        .price-row {
+            font-size: 14px;
+        }
+        .total-price {
+            font-size: 24px;
+        }
+        .discount-tags {
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .confirm-container {
+            padding: 15px 10px;
+        }
+        .confirm-title {
+            font-size: 20px;
+        }
+        .flight-detail-card,
+        .price-summary-card {
+            padding: 15px 12px;
+            border-radius: 12px;
+        }
+        .route-city {
+            font-size: 16px;
+        }
+        .route-code {
+            font-size: 20px;
+        }
+        .route-arrow {
+            font-size: 16px;
+        }
+        .promo-input-group {
+            flex-direction: column;
+        }
+        .promo-input-group input {
+            border-radius: 8px;
+        }
+        .promo-input-group button {
+            border-radius: 8px;
+            width: 100%;
+        }
+        .passenger-type-header i {
+            font-size: 20px;
+        }
+        .passenger-counter {
+            gap: 10px;
+        }
+        .counter-btn {
+            width: 32px;
+            height: 32px;
+        }
+    }
+</style>
+
+<!-- Hidden element to store flight data for JavaScript -->
+<div id="flightData" 
+     data-base-price="{{ flight.base_price }}" 
+     style="display: none;"></div>
+
+<div class="confirm-container">
+    <!-- Offers Banner -->
+    <div class="offers-banner">
+        <i class="fas fa-gift"></i>
+        <div class="offers-banner-content">
+            <h4>Special Offers Available!</h4>
+            <p>Use code SUMMER20 for 20% off or FLAT1000 for Rs. 1000 discount on your booking!</p>
+        </div>
+    </div>
+    
+    <div class="booking-card">
+        <h2 style="margin-top: 0; font-weight: 800;">Review & Confirm</h2>
+        <p style="opacity: 0.7;">Please verify your flight details before proceeding.</p>
+        
+        <!-- Flight Details -->
+        <div class="detail-row">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <span class="detail-label">Airline</span>
+                    <div style="font-weight: 700; font-size: 16px;">{{ flight.airline }}</div>
+                </div>
+                <div>
+                    <span class="detail-label">Flight ID</span>
+                    <div style="font-weight: 700; font-size: 16px;">{{ flight.flight_id }}</div>
+                </div>
+                <div>
+                    <span class="detail-label">Departure</span>
+                    <div style="font-weight: 700; font-size: 16px;">{{ flight.from_city }}</div>
+                    <div style="font-size: 14px; opacity: 0.8;">{{ flight.time }}</div>
+                </div>
+                <div>
+                    <span class="detail-label">Arrival</span>
+                    <div style="font-weight: 700; font-size: 16px;">{{ flight.to_city }}</div>
+                    <div style="font-size: 14px; opacity: 0.8;">{{ flight.date }}</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Passengers Selection -->
+        <div class="passengers-grid">
+            <div class="passenger-type-box">
+                <div class="passenger-type-header">
+                    <i class="fas fa-user"></i>
+                    <div>
+                        <h5>Adults</h5>
+                        <span>12+ years</span>
+                    </div>
+                </div>
+                <div class="passenger-counter-box">
+                    <button type="button" class="counter-btn-box" onclick="changePassenger('adults', -1)">−</button>
+                    <span class="counter-value-box" id="adultsCount">1</span>
+                    <button type="button" class="counter-btn-box" onclick="changePassenger('adults', 1)">+</button>
+                </div>
+            </div>
+            <div class="passenger-type-box">
+                <div class="passenger-type-header">
+                    <i class="fas fa-child"></i>
+                    <div>
+                        <h5>Children</h5>
+                        <span>5-11 years</span>
+                    </div>
+                </div>
+                <div class="passenger-counter-box">
+                    <button type="button" class="counter-btn-box" onclick="changePassenger('children', -1)">−</button>
+                    <span class="counter-value-box" id="childrenCount">0</span>
+                    <button type="button" class="counter-btn-box" onclick="changePassenger('children', 1)">+</button>
+                </div>
+            </div>
+            <div class="passenger-type-box infant-box">
+                <div class="passenger-type-header">
+                    <i class="fas fa-baby"></i>
+                    <div>
+                        <h5>Infants</h5>
+                        <span>Under 5 years</span>
+                    </div>
+                </div>
+                <div class="infant-discount-badge">5% OFF</div>
+                <div class="passenger-counter-box">
+                    <button type="button" class="counter-btn-box" onclick="changePassenger('infants', -1)">−</button>
+                    <span class="counter-value-box" id="infantsCount">0</span>
+                    <button type="button" class="counter-btn-box" onclick="changePassenger('infants', 1)">+</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Travel Class Selection -->
+        <div class="class-selection-section">
+            <label><i class="fas fa-ticket-alt"></i> Travel Class</label>
+            <div class="class-buttons">
+                <button type="button" class="class-btn selected" data-class="economy" onclick="selectTravelClass('economy')">
+                    <i class="fas fa-chair"></i>
+                    <span>Economy</span>
+                    <small>Standard fare</small>
+                </button>
+                <button type="button" class="class-btn" data-class="business" onclick="selectTravelClass('business')">
+                    <i class="fas fa-crown"></i>
+                    <span>Business</span>
+                    <small>+50% fare</small>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Promo Code Section -->
+        <div class="promo-section">
+            <h4><i class="fas fa-tags"></i> Have a Promo Code?</h4>
+            <div class="promo-input-row">
+                <input type="text" id="promoInput" class="promo-input" placeholder="Enter promo code">
+                <button type="button" class="btn-apply" onclick="applyPromoCode()">Apply</button>
+            </div>
+            <div id="promoMessage" class="promo-message"></div>
+            <div class="discount-tags">
+                {% for discount in discounts %}
+                <button type="button" class="discount-tag" onclick="useCode('{{ discount.code }}')">
+                    {{ discount.code }} - {{ discount.description }}
+                </button>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Price Breakdown -->
+        <div class="price-breakdown">
+            <div class="price-row original">
+                <span>Base Price (Economy)</span>
+                <span>Rs. {{ "{:,}".format(flight.base_price) }} /person</span>
+            </div>
+            <div class="price-row" id="passengersRow">
+                <span>Total Passengers</span>
+                <span id="passengersCount">x 1</span>
+            </div>
+            <div class="price-row" id="subtotalRow">
+                <span>Subtotal <small id="classIndicator">(Economy)</small></span>
+                <span id="subtotalPrice">Rs. {{ "{:,}".format(flight.base_price) }}</span>
+            </div>
+            <div class="price-row" id="infantDiscountRow" style="display: none; color: #1A73E8;">
+                <span><i class="fas fa-baby"></i> Infant Discount (5% off)</span>
+                <span id="infantDiscountAmount">- Rs. 0</span>
+            </div>
+            <div class="price-row discount" id="discountRow" style="display: none;">
+                <span id="discountLabel">Promo Discount</span>
+                <span id="discountAmount">- Rs. 0</span>
+            </div>
+            <div class="price-row total">
+                <span>
+                    Total Amount
+                    <span class="savings-badge" id="savingsBadge" style="display: none;">You Save!</span>
+                </span>
+                <span class="price-value" id="finalPrice">Rs. {{ "{:,}".format(flight.base_price) }}</span>
+            </div>
+        </div>
+
+        <form action="{{ url_for('book_flight_action', flight_id=flight._id) }}" method="POST" id="bookingForm">
+            <input type="hidden" name="promo_code" id="promoCodeInput" value="">
+            <input type="hidden" name="adults" id="adultsInput" value="1">
+            <input type="hidden" name="children" id="childrenInput" value="0">
+            <input type="hidden" name="infants" id="infantsInput" value="0">
+            <input type="hidden" name="travel_class" id="travelClassInput" value="economy">
+            <button type="submit" class="btn-confirm">
+                <i class="fas fa-check-circle"></i> Confirm Booking
+            </button>
+        </form>
+        
+        <a href="{{ url_for('index') }}" class="btn-cancel">
+            <i class="fas fa-arrow-left"></i> Cancel and Go Back
+        </a>
+    </div>
+</div>
+
+<script>
+    // Get flight data from hidden element (avoids Jinja2 linter issues)
+    const flightDataEl = document.getElementById('flightData');
+    const basePrice = parseInt(flightDataEl.dataset.basePrice) || 0;
+    
+    let currentDiscount = 0;
+    let appliedCode = '';
+    let discountDescription = '';
+    
+    // Passenger state
+    let passengerData = {
+        adults: 1,
+        children: 0,
+        infants: 0,
+        travelClass: 'economy'
+    };
+    
+    function formatPrice(price) {
+        return 'Rs. ' + Math.round(price).toLocaleString();
+    }
+    
+    function useCode(code) {
+        document.getElementById('promoInput').value = code;
+        applyPromoCode();
+    }
+    
+    // Passenger counter functions
+    function changePassenger(type, change) {
+        const newValue = passengerData[type] + change;
+        
+        // Validation
+        if (type === 'adults' && newValue < 1) return;
+        if (newValue < 0) return;
+        if (newValue > 9) return;
+        if (type === 'infants' && newValue > passengerData.adults) return;
+        
+        passengerData[type] = newValue;
+        document.getElementById(type + 'Count').textContent = newValue;
+        document.getElementById(type + 'Input').value = newValue;
+        
+        updateCounterButtons();
+        calculateAndUpdatePrice();
+    }
+    
+    function updateCounterButtons() {
+        // Disable/enable buttons based on limits
+        const buttons = document.querySelectorAll('.counter-btn-box');
+        buttons.forEach(btn => {
+            const onclick = btn.getAttribute('onclick');
+            if (onclick && onclick.includes("'adults', -1")) {
+                btn.disabled = passengerData.adults <= 1;
+            }
+            if (onclick && onclick.includes("'children', -1")) {
+                btn.disabled = passengerData.children <= 0;
+            }
+            if (onclick && onclick.includes("'infants', -1")) {
+                btn.disabled = passengerData.infants <= 0;
+            }
+        });
+    }
+    
+    function selectTravelClass(travelClass) {
+        passengerData.travelClass = travelClass;
+        document.getElementById('travelClassInput').value = travelClass;
+        
+        // Update UI
+        document.querySelectorAll('.class-btn').forEach(btn => {
+            btn.classList.remove('selected');
+        });
+        document.querySelector(`.class-btn[data-class="${travelClass}"]`).classList.add('selected');
+        
+        calculateAndUpdatePrice();
+    }
+    
+    function calculateAndUpdatePrice() {
+        // Calculate base totals (before infant discount)
+        const classMultiplier = passengerData.travelClass === 'business' ? 1.5 : 1;
+        const pricePerPerson = basePrice * classMultiplier;
+        
+        let adultTotal = pricePerPerson * passengerData.adults;
+        let childTotal = pricePerPerson * passengerData.children;
+        let infantFullPrice = pricePerPerson * passengerData.infants;
+        let infantDiscount = infantFullPrice * 0.05; // 5% discount for infants
+        let infantTotal = infantFullPrice - infantDiscount;
+        
+        let subtotal = adultTotal + childTotal + infantFullPrice; // Show subtotal before infant discount
+        
+        // Update class indicator
+        const classIndicator = document.getElementById('classIndicator');
+        classIndicator.textContent = `(${passengerData.travelClass === 'business' ? 'Business +50%' : 'Economy'})`;
+        
+        // Update display
+        const totalPassengers = passengerData.adults + passengerData.children + passengerData.infants;
+        document.getElementById('passengersCount').textContent = 'x ' + totalPassengers;
+        document.getElementById('subtotalPrice').textContent = formatPrice(subtotal);
+        
+        // Show infant discount row
+        const infantDiscountRow = document.getElementById('infantDiscountRow');
+        if (passengerData.infants > 0) {
+            infantDiscountRow.style.display = 'flex';
+            document.getElementById('infantDiscountAmount').textContent = '- ' + formatPrice(infantDiscount);
+        } else {
+            infantDiscountRow.style.display = 'none';
+        }
+        
+        // Calculate promo discount (applied after infant discount)
+        let afterInfantDiscount = subtotal - infantDiscount;
+        let promoDiscount = 0;
+        
+        if (appliedCode) {
+            const discountRules = {
+                'WELCOME10': 0.10,
+                'SUMMER20': 0.20,
+                'FLAT500': 500 * totalPassengers,
+                'FLAT1000': 1000 * totalPassengers,
+                'EARLY15': 0.15,
+                'WEEKEND5': 0.05
+            };
+            
+            if (appliedCode in discountRules) {
+                const rule = discountRules[appliedCode];
+                if (rule < 1) {
+                    promoDiscount = afterInfantDiscount * rule;
+                } else {
+                    promoDiscount = Math.min(rule, afterInfantDiscount); // Can't exceed total
+                }
+            }
+        }
+        
+        const totalDiscount = promoDiscount + infantDiscount;
+        const finalPrice = afterInfantDiscount - promoDiscount;
+        
+        // Update promo discount display
+        const discountRow = document.getElementById('discountRow');
+        const discountLabel = document.getElementById('discountLabel');
+        const discountAmount = document.getElementById('discountAmount');
+        const savingsBadge = document.getElementById('savingsBadge');
+        
+        if (promoDiscount > 0) {
+            discountRow.style.display = 'flex';
+            discountLabel.textContent = `Promo Discount (${appliedCode})`;
+            discountAmount.textContent = '- ' + formatPrice(promoDiscount);
+        } else {
+            discountRow.style.display = 'none';
+        }
+        
+        // Show savings badge if any discount
+        if (totalDiscount > 0) {
+            savingsBadge.style.display = 'inline-block';
+            savingsBadge.textContent = 'You Save ' + formatPrice(totalDiscount) + '!';
+        } else {
+            savingsBadge.style.display = 'none';
+        }
+        
+        document.getElementById('finalPrice').textContent = formatPrice(finalPrice);
+    }
+    
+    async function applyPromoCode() {
+        const promoCode = document.getElementById('promoInput').value.trim().toUpperCase();
+        const messageDiv = document.getElementById('promoMessage');
+        
+        if (!promoCode) {
+            messageDiv.className = 'promo-message error';
+            messageDiv.textContent = 'Please enter a promo code';
+            return;
+        }
+        
+        const validCodes = ['WELCOME10', 'SUMMER20', 'FLAT500', 'FLAT1000', 'EARLY15', 'WEEKEND5'];
+        
+        if (validCodes.includes(promoCode)) {
+            appliedCode = promoCode;
+            document.getElementById('promoCodeInput').value = promoCode;
+            
+            const descriptions = {
+                'WELCOME10': '10% off for new users',
+                'SUMMER20': '20% summer sale discount',
+                'FLAT500': 'Rs. 500 flat discount per person',
+                'FLAT1000': 'Rs. 1000 flat discount per person',
+                'EARLY15': '15% early bird discount',
+                'WEEKEND5': '5% weekend special'
+            };
+            
+            messageDiv.className = 'promo-message success';
+            messageDiv.textContent = `Code applied! ${descriptions[promoCode]}`;
+            
+            calculateAndUpdatePrice();
+        } else {
+            messageDiv.className = 'promo-message error';
+            messageDiv.textContent = 'Invalid promo code. Please try another.';
+            appliedCode = '';
+            document.getElementById('promoCodeInput').value = '';
+            calculateAndUpdatePrice();
+        }
+    }
+    
+    // Initialize
+    updateCounterButtons();
+    calculateAndUpdatePrice();
+</script>
+{% endblock %}
