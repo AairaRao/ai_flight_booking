@@ -9,4 +9,6 @@ services:
         value: 3.11.0
       - key: MONGO_URI
         sync: false
+      - key: SECRET_KEY
+        sync: false
 

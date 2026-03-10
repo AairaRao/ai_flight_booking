@@ -1,10 +1,12 @@
 from pymongo import MongoClient
 from datetime import datetime, timedelta
 import random
+import os
 
-# Connect to Local MongoDB
+# Connect to MongoDB - uses MONGO_URI for Atlas, localhost for local development
+MONGO_URI = os.environ.get("MONGO_URI", "mongodb://localhost:27017/")
 try:
-    client = MongoClient("mongodb://localhost:27017/")
+    client = MongoClient(MONGO_URI)
     db = client.flight_booking
     
     # Do not clear flights if bookings exist (prevents breaking references)
@@ -85,7 +87,7 @@ try:
         "date": "2026-01-01"
     })
     
-    # Insert into MongoDB (skip flights that already exist by flight_id)
+    # Insert into MongoDB Atlas (skip flights that already exist by flight_id)
     existing_ids = set(f["flight_id"] for f in db.flights.find({}, {"flight_id": 1, "_id": 0}))
     new_flights = [f for f in flights_list if f["flight_id"] not in existing_ids]
     if new_flights:
@@ -98,4 +100,4 @@ try:
         print(f"  {flight['flight_id']} | {flight['from_city']} -> {flight['to_city']} | {flight['date']} | Rs. {flight['base_price']}")
 
 except Exception as e:
-    print(f"Error connecting to MongoDB: {e}")
+    print(f"Error connecting to MongoDB (check MONGO_URI for Atlas): {e}")
