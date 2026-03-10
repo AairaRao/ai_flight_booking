@@ -7,9 +7,13 @@ try:
     client = MongoClient("mongodb://localhost:27017/")
     db = client.flight_booking
     
-    # Clear existing flights to avoid duplicates
-    db.flights.delete_many({})
-    print("Existing flights cleared.")
+    # Do not clear flights if bookings exist (prevents breaking references)
+    existing_bookings = db.bookings.count_documents({})
+    if existing_bookings == 0:
+        db.flights.delete_many({})
+        print("Existing flights cleared.")
+    else:
+        print(f"Skipping flight deletion because {existing_bookings} booking(s) exist.")
 
     airlines = ["SkyVoyage Air", "PIA", "AirSial", "SereneAir", "FlyJinnah"]
     local_cities = ["Karachi", "Lahore", "Islamabad", "Multan", "Peshawar"]
@@ -81,9 +85,12 @@ try:
         "date": "2026-01-01"
     })
     
-    # Insert into MongoDB
-    db.flights.insert_many(flights_list)
-    print(f"Successfully saved {len(flights_list)} flights to 'flight_booking.flights'.")
+    # Insert into MongoDB (skip flights that already exist by flight_id)
+    existing_ids = set(f["flight_id"] for f in db.flights.find({}, {"flight_id": 1, "_id": 0}))
+    new_flights = [f for f in flights_list if f["flight_id"] not in existing_ids]
+    if new_flights:
+        db.flights.insert_many(new_flights)
+    print(f"Successfully saved {len(new_flights)} new flights to 'flight_booking.flights'.")
     
     # Print sample flights for verification
     print("\nSample Flight Entries:")

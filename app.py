@@ -3,6 +3,7 @@ from flask_pymongo import PyMongo
 from werkzeug.security import generate_password_hash, check_password_hash
 from bson.objectid import ObjectId
 from datetime import datetime
+from urllib.parse import urlparse, urlunparse
 import re
 import os
 
@@ -10,7 +11,15 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "skyvoyage_secret_key")
 
 # MongoDB Connection - Uses environment variable for production, localhost for development
-app.config["MONGO_URI"] = os.environ.get("MONGO_URI", "mongodb://localhost:27017/flight_booking")
+def normalize_mongo_uri(uri, db_name):
+    """Ensure the MongoDB URI uses the expected database name."""
+    if not uri:
+        return f"mongodb://localhost:27017/{db_name}"
+    parsed = urlparse(uri)
+    new_path = f"/{db_name}"
+    return urlunparse((parsed.scheme, parsed.netloc, new_path, parsed.params, parsed.query, parsed.fragment))
+
+app.config["MONGO_URI"] = normalize_mongo_uri(os.environ.get("MONGO_URI"), "flight_booking")
 mongo = PyMongo(app)
 
 # ============================================
@@ -719,6 +728,14 @@ def book_flight_action(flight_id):
     booking_data = {
         "user_id": ObjectId(session['user_id']),
         "flight_id": ObjectId(flight_id),
+        "flight_snapshot": {
+            "airline": flight.get("airline", "SkyVoyage Air"),
+            "flight_id": flight.get("flight_id", ""),
+            "from_city": flight.get("from_city", ""),
+            "to_city": flight.get("to_city", ""),
+            "date": flight.get("date", ""),
+            "time": flight.get("time", "")
+        },
         "booking_date": datetime.now().strftime("%Y-%m-%d %H:%M"),
         "adults": adults,
         "children": children,
@@ -753,7 +770,37 @@ def my_bookings():
     
     # "Join" flight info to show details in the table
     for booking in user_bookings:
-        flight_details = mongo.db.flights.find_one({"_id": booking['flight_id']})
+        flight_details = None
+        flight_id = booking.get("flight_id")
+        if flight_id:
+            try:
+                flight_details = mongo.db.flights.find_one({"_id": ObjectId(flight_id)})
+            except Exception:
+                flight_details = mongo.db.flights.find_one({"_id": flight_id})
+
+        if flight_details and not booking.get("flight_snapshot"):
+            mongo.db.bookings.update_one(
+                {"_id": booking["_id"]},
+                {"$set": {"flight_snapshot": {
+                    "airline": flight_details.get("airline", "SkyVoyage Air"),
+                    "flight_id": flight_details.get("flight_id", ""),
+                    "from_city": flight_details.get("from_city", ""),
+                    "to_city": flight_details.get("to_city", ""),
+                    "date": flight_details.get("date", ""),
+                    "time": flight_details.get("time", "")
+                }}}
+            )
+
+        if not flight_details:
+            flight_details = booking.get("flight_snapshot") or {
+                "airline": "Flight Removed",
+                "flight_id": "",
+                "from_city": "Unknown",
+                "to_city": "Unknown",
+                "date": "",
+                "time": ""
+            }
+
         booking['flight_info'] = flight_details 
         
     return render_template('my_bookings.html', bookings=user_bookings)
